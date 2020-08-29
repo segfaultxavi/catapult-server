@@ -31,6 +31,16 @@ namespace catapult { namespace chain {
 			votingStatus.HasSentPrevote = false;
 			votingStatus.HasSentPrecommit = false;
 		}
+
+		void LogMessage(const model::FinalizationMessage& message) {
+			auto messageDescription = model::FinalizationStage::Prevote == message.StepIdentifier.Stage() ? "prevote" : "precommit";
+			CATAPULT_LOG(debug)
+					<< "<FIN> preparing " << messageDescription << " for " << message.StepIdentifier
+					<< " at " << message.Height
+					<< " from " << message.Signature.Root.ParentPublicKey;
+			for (auto i = 0u; i < message.HashesCount; ++i)
+				CATAPULT_LOG(debug) << "<FIN> + " << message.HashesPtr()[i];
+		}
 	}
 
 	FinalizationOrchestrator::FinalizationOrchestrator(
@@ -68,8 +78,10 @@ namespace catapult { namespace chain {
 
 	void FinalizationOrchestrator::poll(Timestamp time) {
 		// on first call to poll, don't call startRound in order to use original values for m_votingStatus
-		if (!m_pStageAdvancer)
+		if (!m_pStageAdvancer) {
+			CATAPULT_LOG(debug) << "<FIN> starting initial round at " << m_votingStatus.Round;
 			m_pStageAdvancer = m_stageAdvancerFactory(m_votingStatus.Round, time);
+		}
 
 		if (!m_votingStatus.HasSentPrevote && m_pStageAdvancer->canSendPrevote(time)) {
 			process(m_pMessageFactory->createPrevote(m_votingStatus.Round), "prevote");
@@ -85,10 +97,13 @@ namespace catapult { namespace chain {
 		if (m_votingStatus.HasSentPrecommit && m_pStageAdvancer->canStartNextRound()) {
 			m_votingStatus.Round.Point = m_votingStatus.Round.Point + FinalizationPoint(1);
 			startRound(time);
+			CATAPULT_LOG(debug) << "<FIN> advancing to round " << m_votingStatus.Round;
 		}
 	}
 
 	void FinalizationOrchestrator::startRound(Timestamp time) {
+		CATAPULT_LOG(debug) << "<FIN> starting round " << m_votingStatus.Round << " at time " << time;
+
 		ClearFlags(m_votingStatus);
 		m_pStageAdvancer = m_stageAdvancerFactory(m_votingStatus.Round, time);
 	}
@@ -101,6 +116,8 @@ namespace catapult { namespace chain {
 			return;
 		}
 
+		CATAPULT_LOG(debug) << "<FIN> sending " << description << " for " << m_votingStatus.Round;
+		LogMessage(*pMessage);
 		m_messageSink(std::move(pMessage));
 	}
 

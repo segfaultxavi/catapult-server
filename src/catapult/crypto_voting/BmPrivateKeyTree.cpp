@@ -285,6 +285,8 @@ namespace catapult { namespace crypto {
 	}
 
 	BmTreeSignature BmPrivateKeyTree::sign(const BmKeyIdentifier& keyIdentifier, const RawBuffer& dataBuffer) {
+		CATAPULT_LOG(debug) << "<FIN> signing with " << keyIdentifier;
+
 		if (!canSign(keyIdentifier))
 			CATAPULT_THROW_INVALID_ARGUMENT_1("sign called with invalid key identifier", keyIdentifier);
 
@@ -307,6 +309,8 @@ namespace catapult { namespace crypto {
 	}
 
 	void BmPrivateKeyTree::wipe(const BmKeyIdentifier& keyIdentifier) {
+		CATAPULT_LOG(debug) << "<FIN> wiping with " << keyIdentifier;
+
 		// allow KeyId to be invalid, indicating only batch keys should be wiped
 		auto normalizedKeyId = BmKeyIdentifier::Invalid_Id == keyIdentifier.KeyId ? 0 : keyIdentifier.KeyId;
 		if (!check({ keyIdentifier.BatchId, normalizedKeyId }, m_lastWipeKeyIdentifier))
@@ -322,14 +326,25 @@ namespace catapult { namespace crypto {
 	}
 
 	bool BmPrivateKeyTree::check(const BmKeyIdentifier& keyIdentifier, const BmKeyIdentifier& referenceKeyIdentifier) const {
-		if (keyIdentifier < referenceKeyIdentifier)
+		if (keyIdentifier < referenceKeyIdentifier) {
+			CATAPULT_LOG(debug)
+					<< "<FIN> cannot sign (keyIdentifier " << keyIdentifier
+					<< " < referenceKeyIdentifier" << referenceKeyIdentifier << ")";
 			return false;
+		}
 
-		if (keyIdentifier < m_options.StartKeyIdentifier || keyIdentifier > m_options.EndKeyIdentifier)
+		if (keyIdentifier < m_options.StartKeyIdentifier || keyIdentifier > m_options.EndKeyIdentifier) {
+			CATAPULT_LOG(debug)
+					<< "<FIN> cannot sign (start " << m_options.StartKeyIdentifier
+					<< " cur " << keyIdentifier
+					<< " end " << m_options.EndKeyIdentifier << ")";
 			return false;
+		}
 
-		if (keyIdentifier.KeyId >= m_options.Dilution)
+		if (keyIdentifier.KeyId >= m_options.Dilution) {
+			CATAPULT_LOG(debug) << "<FIN> cannot sign (keyIdentifier " << keyIdentifier << " dilution " << m_options.Dilution << ")";
 			return false;
+		}
 
 		return true;
 	}

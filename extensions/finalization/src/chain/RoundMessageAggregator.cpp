@@ -122,11 +122,17 @@ namespace catapult { namespace chain {
 
 		public:
 			RoundMessageAggregatorAddResult add(const std::shared_ptr<model::FinalizationMessage>& pMessage) override {
+				CATAPULT_LOG(debug)
+						<< " <FIN> got message at " << pMessage->StepIdentifier
+						<< " with " << pMessage->HashesCount << " hashes (vs "
+						<< m_finalizationContext.config().MaxHashesPerPoint << ")";
 				if (0 == pMessage->HashesCount || pMessage->HashesCount > m_finalizationContext.config().MaxHashesPerPoint)
 					return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
 
 				auto isPrevote = IsPrevote(*pMessage);
 				auto lastHashHeight = pMessage->Height + Height(pMessage->HashesCount - 1);
+
+				CATAPULT_LOG(debug) << "<FIN> context height vs last height: " << m_finalizationContext.height() << " " << lastHashHeight;
 
 				// only consider messages that have at least one hash at or after the epoch height
 				if (m_finalizationContext.height() > lastHashHeight)
@@ -137,6 +143,8 @@ namespace catapult { namespace chain {
 					auto previousEpoch = pMessage->StepIdentifier.Epoch - FinalizationEpoch(1);
 					auto epochMinHeight = model::CalculateVotingSetEndHeight(previousEpoch, votingSetGrouping);
 					auto epochMaxHeight = model::CalculateVotingSetEndHeight(pMessage->StepIdentifier.Epoch, votingSetGrouping);
+
+					CATAPULT_LOG(debug) << "<FIN> epoch min vs max height: " << epochMinHeight << " " << epochMaxHeight;
 
 					if (pMessage->Height < epochMinHeight || lastHashHeight > epochMaxHeight)
 						return RoundMessageAggregatorAddResult::Failure_Invalid_Hashes;
@@ -160,6 +168,15 @@ namespace catapult { namespace chain {
 				}
 
 				m_messages.emplace(messageKey, CreateMessageDescriptor(pMessage));
+
+				CATAPULT_LOG(debug)
+						<< "<FIN> adding " << (isPrevote ? "prevote" : "precommit") << " for epoch " << m_finalizationContext.epoch()
+						<< " with step " << pMessage->StepIdentifier.Round()
+						<< " with starting height " << pMessage->Height
+						<< " with weight " << processResultPair.second
+						<< " from " << pMessage->Signature.Root.ParentPublicKey;
+				for (auto i = 0u; i < pMessage->HashesCount; ++i)
+					CATAPULT_LOG(debug) << "<FIN> + " << pMessage->HashesPtr()[i];
 
 				if (isPrevote) {
 					m_roundContext.acceptPrevote(pMessage->Height, pMessage->HashesPtr(), pMessage->HashesCount, processResultPair.second);

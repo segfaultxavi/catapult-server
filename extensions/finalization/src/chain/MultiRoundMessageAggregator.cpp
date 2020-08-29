@@ -136,6 +136,7 @@ namespace catapult { namespace chain {
 			}
 		}
 
+		CATAPULT_LOG(debug) << "<FIN:debug> returning " << allMessages.size() << " messages starting at " << roundRange;
 		return allMessages;
 	}
 
@@ -154,6 +155,7 @@ namespace catapult { namespace chain {
 		if (m_state.MinFinalizationRound > round)
 			CATAPULT_THROW_INVALID_ARGUMENT("cannot set max finalization round below min");
 
+		CATAPULT_LOG(debug) << "<FIN> setting max finalization round to " << round;
 		m_state.MaxFinalizationRound = round;
 	}
 
@@ -173,6 +175,7 @@ namespace catapult { namespace chain {
 			iter = m_state.RoundMessageAggregators.emplace(messageRound, std::move(pRoundAggregator)).first;
 		}
 
+		CATAPULT_LOG(debug) << "<FIN> adding message to aggregator at " << messageRound << " with height " << pMessage->Height;
 		return iter->second->add(pMessage);
 	}
 
@@ -183,6 +186,10 @@ namespace catapult { namespace chain {
 		roundMessageAggregators.erase(roundMessageAggregators.begin(), iter);
 
 		m_state.MinFinalizationRound = roundMessageAggregators.cend() == iter ? m_state.MaxFinalizationRound : iter->first;
+
+		CATAPULT_LOG(debug)
+				<< "<FIN> pruning  MultiRoundMessageAggregator  at epoch " << epoch
+				<< ", new min round " << m_state.MinFinalizationRound;
 	}
 
 	// endregion
