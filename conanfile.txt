@@ -5,6 +5,7 @@ cppzmq/4.6.0@nemtech/stable
 mongo-cxx-driver/3.6.0-nem@nemtech/stable
 openssl/1.1.1g@nemtech/stable
 rocksdb/6.11.4@nemtech/stable
+milagro/2.0.1-nem@nemtech/stable
 
 # test dependencies
 benchmark/1.5.1@nemtech/stable
