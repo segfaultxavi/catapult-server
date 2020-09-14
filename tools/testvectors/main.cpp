@@ -23,6 +23,7 @@
 #include "catapult/crypto/Hashes.h"
 #include "catapult/crypto/SharedKey.h"
 #include "catapult/crypto/Signer.h"
+#include "catapult/crypto_voting/VotingSigner.h"
 #include "catapult/model/Address.h"
 #include "catapult/model/MosaicIdGenerator.h"
 #include "catapult/utils/HexParser.h"
@@ -268,6 +269,51 @@ namespace catapult { namespace tools { namespace testvectors {
 					expectedMosaicIdMijinTest == mosaicIdMijinTest;
 		}
 
+		crypto::VotingSignature HashToPoint(const std::vector<uint8_t>& /*data*/) {
+			// TODO: implement me!
+			return crypto::VotingSignature();
+		}
+
+		bool BlsHashToPointTester(const pt::ptree& testCase, size_t testCaseNumber) {
+			// Arrange:
+			auto length = Get<size_t>(testCase, "length");
+			auto data = ParseVector(Get<>(testCase, "data"), testCaseNumber, length);
+			auto expectedPoint = ParseByteArray<crypto::VotingSignature>("point", Get<>(testCase, "point"), testCaseNumber);
+
+			// Act:
+			auto point = HashToPoint(data);
+
+			// Assert:
+			return expectedPoint == point;
+		}
+
+		crypto::VotingKeyPair GenerateVotingKeyPair(const std::vector<uint8_t>& /*seed*/) {
+			// TODO: implement me!
+			return crypto::VotingKeyPair::FromPrivate(crypto::VotingPrivateKey());
+		}
+
+		bool BlsSigningTester(const pt::ptree& testCase, size_t testCaseNumber) {
+			// Arrange:
+			auto length = Get<size_t>(testCase, "length");
+			auto data = ParseVector(Get<>(testCase, "data"), testCaseNumber, length);
+
+			auto privateKeySeedLength = Get<size_t>(testCase, "privateKeySeedLength");
+			auto privateKeySeed = ParseVector(Get<>(testCase, "privateKeySeed"), testCaseNumber, privateKeySeedLength);
+
+			auto expectedSignature = ParseByteArray<crypto::VotingSignature>("signature", Get<>(testCase, "signature"), testCaseNumber);
+
+			// Act:
+			auto keyPair = GenerateVotingKeyPair(privateKeySeed);
+
+			crypto::VotingSignature signature;
+			crypto::Sign(keyPair, data, signature);
+
+			auto isVerified = crypto::Verify(keyPair.publicKey(), data, signature);
+
+			// Assert:
+			return expectedSignature == signature && isVerified;
+		}
+
 		class TestVectorsTool : public Tool {
 		public:
 			std::string name() const override {
@@ -278,22 +324,31 @@ namespace catapult { namespace tools { namespace testvectors {
 				optionsBuilder("vectors-dir,v",
 						OptionsValue<std::string>(m_vectorsDirectory)->required(),
 						"path to test-vectors directory");
+				optionsBuilder("exclusion-filter,x",
+						OptionsValue<std::vector<uint16_t>>(m_exclusionFilter)->multitoken()->default_value({ 6, 7 }, "6 7"),
+						"identifiers of tests to exclude");
 
 				positional.add("vectors-dir", -1);
 			}
 
 			int run(const Options&) override {
-				RunTest(parseJsonFile("0.test-sha3-256"), "sha3", CreateHashTester(crypto::Sha3_256));
-				RunTest(parseJsonFile("1.test-keys"), "key conversion", KeyConversionTester);
-				RunTest(parseJsonFile("1.test-address"), "address conversion", AddressConversionTester);
-				RunTest(parseJsonFile("2.test-sign"), "signing", SigningTester);
-				RunTest(parseJsonFile("3.test-derive"), "shared key derive", DeriveTester);
-				RunTest(parseJsonFile("4.test-cipher"), "aes-gcm decryption", DecryptTester);
-				RunTest(parseJsonFile("5.test-mosaic-id"), "mosaic id derivation", MosaicIdDerivationTester);
+				runTest(0, "0.test-sha3-256", "sha3", CreateHashTester(crypto::Sha3_256));
+				runTest(1, "1.test-keys", "key conversion", KeyConversionTester);
+				runTest(1, "1.test-address", "address conversion", AddressConversionTester);
+				runTest(2, "2.test-sign", "signing", SigningTester);
+				runTest(3, "3.test-derive", "shared key derive", DeriveTester);
+				runTest(4, "4.test-cipher", "aes-gcm decryption", DecryptTester);
+				runTest(5, "5.test-mosaic-id", "mosaic id derivation", MosaicIdDerivationTester);
+				runTest(6, "6.test-bls-hash-to-point", "bls hash to point (G2)", BlsHashToPointTester);
+				runTest(7, "7.test-bls-sign", "bls signing (G2)", BlsSigningTester);
 				return 0;
 			}
 
 		private:
+			bool shouldExecute(uint16_t testId) const {
+				return m_exclusionFilter.cend() == std::find(m_exclusionFilter.cbegin(), m_exclusionFilter.cend(), testId);
+			}
+
 			pt::ptree parseJsonFile(const std::string& filename) {
 				auto path = boost::filesystem::path(m_vectorsDirectory) / (filename + ".json");
 				pt::ptree testData;
@@ -301,11 +356,19 @@ namespace catapult { namespace tools { namespace testvectors {
 				return testData;
 			}
 
-		private:
-			static void RunTest(pt::ptree&& testCases, const std::string& testName, const predicate<const pt::ptree&, size_t>& testFunc) {
+			void runTest(
+					uint16_t testId,
+					const std::string& testCaseFilename,
+					const std::string& testName,
+					const predicate<const pt::ptree&, size_t>& testFunc) {
+				if (!shouldExecute(testId)) {
+					CATAPULT_LOG(debug) << testName << " SKIPPED";
+					return;
+				}
+
 				size_t testCaseNumber = 0;
 				size_t numFailed = 0;
-
+				auto testCases = parseJsonFile(testCaseFilename);
 				for (const auto& testCasePair : testCases) {
 					if (!testFunc(testCasePair.second, testCaseNumber))
 						++numFailed;
@@ -321,6 +384,7 @@ namespace catapult { namespace tools { namespace testvectors {
 
 		private:
 			std::string m_vectorsDirectory;
+			std::vector<uint16_t> m_exclusionFilter;
 		};
 	}
 }}}
