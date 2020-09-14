@@ -269,7 +269,7 @@ namespace catapult { namespace tools { namespace testvectors {
 					expectedMosaicIdMijinTest == mosaicIdMijinTest;
 		}
 
-		crypto::VotingSignature HashToPoint(const std::vector<uint8_t>& /*data*/) {
+		crypto::VotingSignature HashToPoint(const std::vector<uint8_t>& /*buffer*/) {
 			// TODO: implement me!
 			return crypto::VotingSignature();
 		}
@@ -277,11 +277,11 @@ namespace catapult { namespace tools { namespace testvectors {
 		bool BlsHashToPointTester(const pt::ptree& testCase, size_t testCaseNumber) {
 			// Arrange:
 			auto length = Get<size_t>(testCase, "length");
-			auto data = ParseVector(Get<>(testCase, "data"), testCaseNumber, length);
+			auto buffer = ParseVector(Get<>(testCase, "data"), testCaseNumber, length);
 			auto expectedPoint = ParseByteArray<crypto::VotingSignature>("point", Get<>(testCase, "point"), testCaseNumber);
 
 			// Act:
-			auto point = HashToPoint(data);
+			auto point = HashToPoint(buffer);
 
 			// Assert:
 			return expectedPoint == point;
@@ -295,7 +295,7 @@ namespace catapult { namespace tools { namespace testvectors {
 		bool BlsSigningTester(const pt::ptree& testCase, size_t testCaseNumber) {
 			// Arrange:
 			auto length = Get<size_t>(testCase, "length");
-			auto data = ParseVector(Get<>(testCase, "data"), testCaseNumber, length);
+			auto buffer = ParseVector(Get<>(testCase, "data"), testCaseNumber, length);
 
 			auto privateKeySeedLength = Get<size_t>(testCase, "privateKeySeedLength");
 			auto privateKeySeed = ParseVector(Get<>(testCase, "privateKeySeed"), testCaseNumber, privateKeySeedLength);
@@ -306,9 +306,9 @@ namespace catapult { namespace tools { namespace testvectors {
 			auto keyPair = GenerateVotingKeyPair(privateKeySeed);
 
 			crypto::VotingSignature signature;
-			crypto::Sign(keyPair, data, signature);
+			crypto::Sign(keyPair, buffer, signature);
 
-			auto isVerified = crypto::Verify(keyPair.publicKey(), data, signature);
+			auto isVerified = crypto::Verify(keyPair.publicKey(), buffer, signature);
 
 			// Assert:
 			return expectedSignature == signature && isVerified;
