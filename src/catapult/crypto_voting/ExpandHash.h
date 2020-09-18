@@ -81,8 +81,10 @@ namespace catapult { namespace crypto {
 					subBuilder.update(dstLen);
 
 					subBuilder.final(prevHash);
-					std::memcpy(pExpanded, prevHash.data(), Hash_Output_Size);
-					pExpanded += Hash_Output_Size;
+
+					auto dataToWrite = std::min<size_t>(Hash_Output_Size, expanded.Size - static_cast<size_t>(pExpanded - expanded.pData));
+					std::memcpy(pExpanded, prevHash.data(), dataToWrite);
+					pExpanded += dataToWrite;
 				}
 			}
 	};
