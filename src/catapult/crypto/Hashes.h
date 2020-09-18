@@ -35,6 +35,9 @@ namespace catapult { namespace crypto {
 	/// Calculates the double sha256 hash of \a dataBuffer into \a hash.
 	void Sha256Double(const RawBuffer& dataBuffer, Hash256& hash);
 
+	/// Calculates the sha256 hash of \a dataBuffer into \a hash.
+	void Sha256(const RawBuffer& dataBuffer, Hash256& hash);
+
 	/// Calculates the sha512 hash of \a dataBuffer into \a hash.
 	void Sha512(const RawBuffer& dataBuffer, Hash512& hash);
 
@@ -77,6 +80,10 @@ namespace catapult { namespace crypto {
 	private:
 		OpensslDigestContext m_context;
 	};
+
+	/// Sha256_Builder.
+	using Sha256_Builder = HashBuilderT<Sha2ModeTag, Hash256_tag>;
+	extern template class HashBuilderT<Sha2ModeTag, Hash256_tag>;
 
 	/// Sha512_Builder.
 	using Sha512_Builder = HashBuilderT<Sha2ModeTag, Hash512_tag>;

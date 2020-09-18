@@ -55,12 +55,6 @@ namespace catapult { namespace crypto {
 		HashSingleBuffer(EVP_ripemd160(), dataBuffer, hash);
 	}
 
-	namespace {
-		void Sha256(const RawBuffer& dataBuffer, Hash256& hash) {
-			HashSingleBuffer(EVP_sha256(), dataBuffer, hash);
-		}
-	}
-
 	void Bitcoin160(const RawBuffer& dataBuffer, Hash160& hash) {
 		Hash256 firstHash;
 		Sha256(dataBuffer, firstHash);
@@ -71,6 +65,10 @@ namespace catapult { namespace crypto {
 		Hash256 firstHash;
 		Sha256(dataBuffer, firstHash);
 		Sha256(firstHash, hash);
+	}
+
+	void Sha256(const RawBuffer& dataBuffer, Hash256& hash) {
+		HashSingleBuffer(EVP_sha256(), dataBuffer, hash);
 	}
 
 	void Sha512(const RawBuffer& dataBuffer, Hash512& hash) {
@@ -91,6 +89,10 @@ namespace catapult { namespace crypto {
 	// region hash builders
 
 	namespace {
+		const EVP_MD* GetMessageDigest(Sha2ModeTag, Hash256_tag) {
+			return EVP_sha256();
+		}
+
 		const EVP_MD* GetMessageDigest(Sha2ModeTag, Hash512_tag) {
 			return EVP_sha512();
 		}
@@ -126,6 +128,7 @@ namespace catapult { namespace crypto {
 		m_context.dispatch(EVP_DigestFinal_ex, output.data(), &outputSize);
 	}
 
+	template class HashBuilderT<Sha2ModeTag, Hash256_tag>;
 	template class HashBuilderT<Sha2ModeTag, Hash512_tag>;
 	template class HashBuilderT<Sha3ModeTag, Hash256_tag>;
 	template class HashBuilderT<Sha3ModeTag, GenerationHash_tag>;
