@@ -106,32 +106,32 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	template<typename TModeTag, typename THashTag>
-	HashBuilderT<TModeTag, THashTag>::HashBuilderT() {
+	template<typename TModeTag, typename THashTag, size_t Block_Size>
+	HashBuilderT<TModeTag, THashTag, Block_Size>::HashBuilderT() {
 		m_context.dispatch(EVP_DigestInit_ex, GetMessageDigest(TModeTag(), THashTag()), nullptr);
 	}
 
-	template<typename TModeTag, typename THashTag>
-	void HashBuilderT<TModeTag, THashTag>::update(const RawBuffer& dataBuffer) {
+	template<typename TModeTag, typename THashTag, size_t Block_Size>
+	void HashBuilderT<TModeTag, THashTag, Block_Size>::update(const RawBuffer& dataBuffer) {
 		m_context.dispatch(EVP_DigestUpdate, dataBuffer.pData, dataBuffer.Size);
 	}
 
-	template<typename TModeTag, typename THashTag>
-	void HashBuilderT<TModeTag, THashTag>::update(std::initializer_list<const RawBuffer> buffers) {
+	template<typename TModeTag, typename THashTag, size_t Block_Size>
+	void HashBuilderT<TModeTag, THashTag, Block_Size>::update(std::initializer_list<const RawBuffer> buffers) {
 		for (const auto& buffer : buffers)
 			update(buffer);
 	}
 
-	template<typename TModeTag, typename THashTag>
-	void HashBuilderT<TModeTag, THashTag>::final(OutputType& output) {
+	template<typename TModeTag, typename THashTag, size_t Block_Size>
+	void HashBuilderT<TModeTag, THashTag, Block_Size>::final(OutputType& output) {
 		auto outputSize = static_cast<unsigned int>(output.size());
 		m_context.dispatch(EVP_DigestFinal_ex, output.data(), &outputSize);
 	}
 
-	template class HashBuilderT<Sha2ModeTag, Hash256_tag>;
-	template class HashBuilderT<Sha2ModeTag, Hash512_tag>;
-	template class HashBuilderT<Sha3ModeTag, Hash256_tag>;
-	template class HashBuilderT<Sha3ModeTag, GenerationHash_tag>;
+	template class HashBuilderT<Sha2ModeTag, Hash256_tag, 64>;
+	template class HashBuilderT<Sha2ModeTag, Hash512_tag, 128>;
+	template class HashBuilderT<Sha3ModeTag, Hash256_tag, 136>;
+	template class HashBuilderT<Sha3ModeTag, GenerationHash_tag, 72>;
 
 	// endregion
 }}
