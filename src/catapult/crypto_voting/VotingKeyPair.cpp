@@ -19,8 +19,8 @@
 **/
 
 #include "VotingKeyPair.h"
-#include "catapult/crypto/SecureRandomGenerator.h"
 #include "catapult/crypto/KeyPair.h"
+#include "catapult/crypto/SecureRandomGenerator.h"
 
 #if defined(__clang__) || defined(__GNUC__)
 #define C99
@@ -48,7 +48,7 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-	VotingPrivateKey GenerateVotingPrivateKey(const std::function<uint64_t()>& generator) {
+	VotingPrivateKey GenerateVotingPrivateKey(const supplier<uint64_t>& generator) {
 		std::array<uint8_t, BGS_BLS381> privateKey;
 
 		DBIG_384_58 randomData;
@@ -60,7 +60,7 @@ namespace catapult { namespace crypto {
 		for (auto& chunk : randomData)
 			chunk = static_cast<__int64_t>(generator() & 0x3FFFFFF'FFFFFFFF);
 
-	    BIG_384_58_dmod(secretKeyPoint, randomData, order);
+		BIG_384_58_dmod(secretKeyPoint, randomData, order);
 		BIG_384_58_toBytes(reinterpret_cast<char*>(privateKey.data()), secretKeyPoint);
 
 		// TODO: wipe secretKeyPoint, wipe randomData, wipe randomData

@@ -23,6 +23,7 @@
 #include "catapult/crypto/SecureByteArray.h"
 
 namespace catapult { namespace crypto {
+
 	struct VotingPrivateKey_tag { static constexpr size_t Size = 32; };
 	using VotingPrivateKey = SecureByteArray<VotingPrivateKey_tag>;
 
@@ -45,5 +46,5 @@ namespace catapult { namespace crypto {
 	using VotingKeyPair = BasicKeyPair<VotingKeyPairTraits>;
 
 	/// Generates voting private key using generator.
-	VotingPrivateKey GenerateVotingPrivateKey(const std::function<uint64_t()>& generator);
+	VotingPrivateKey GenerateVotingPrivateKey(const supplier<uint64_t>& generator);
 }}

@@ -80,7 +80,10 @@ SPECIAL_INCLUDES = (
     re.compile(r'<sys/resource.h>'),
     re.compile(r'<sys/time.h>'),
     re.compile(r'<unistd.h>'),
-    re.compile(r'<windows.h>')
+    re.compile(r'<windows.h>'),
+
+    # ignore amcl includes
+    re.compile(r'<amcl/')
 )
 
 CORE_FIRSTINCLUDES = {

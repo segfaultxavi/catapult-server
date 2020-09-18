@@ -38,5 +38,5 @@ namespace catapult { namespace crypto {
 
 	/// Verifies that \a signature of data in \a buffersList is valid, using public key \a publicKey.
 	/// Returns \c true if signature is valid.
-	bool Verify(const VotingKey& publicKey, const std::vector<RawBuffer>& buffersList, const VotingSignature& signature);
+	bool Verify(const VotingKey& publicKey, std::initializer_list<const RawBuffer> buffersList, const VotingSignature& signature);
 }}
