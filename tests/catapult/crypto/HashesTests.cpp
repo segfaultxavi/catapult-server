@@ -155,6 +155,7 @@ namespace catapult { namespace crypto {
 				return "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855";
 			}
 
+			// data taken from : https://opensource.apple.com/source/sudo/sudo-83/sudo/plugins/sudoers/regress/parser/check_digest.out.ok
 			static std::vector<std::string> SampleTestVectorsInput() {
 				return {
 					AsciiToHexString("a"),
@@ -183,7 +184,6 @@ namespace catapult { namespace crypto {
 				return "CDC76E5C9914FB9281A1C7E284D73E67F1809A48A497200E046D39CCC7112CD0";
 			}
 		};
-
 
 		struct Sha512_Traits {
 			using HashBuilder = Sha512_Builder;

@@ -35,19 +35,20 @@ namespace catapult { namespace crypto {
 			return out.str();
 		}
 
-		// vectors from https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#appendix-I.1
-		struct Sha256_Traits {
-			using HashBuilder = Sha256_Builder;
+		// region traits
 
-			static std::vector<std::string> SampleTestVectorsInput() {
+		struct Input_Traits {
+			static std::vector<std::string> SampleTestVectorsInput20() {
 				return {
 					AsciiToHexString(""),
 					AsciiToHexString("abc"),
-					AsciiToHexString("abcdef0123456789"),
-					AsciiToHexString(""),
-					AsciiToHexString("abc"),
-					AsciiToHexString("abcdef0123456789"),
-					AsciiToHexString(
+					AsciiToHexString("abcdef0123456789")
+				};
+			}
+
+			static std::vector<std::string> SampleTestVectorsInput80() {
+				auto ret = SampleTestVectorsInput20();
+				ret.push_back(AsciiToHexString(
 						"a512_"
 						"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 						"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -56,42 +57,47 @@ namespace catapult { namespace crypto {
 						"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 						"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 						"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-						"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+						"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
+				return ret;
+			}
+		};
+
+		// vectors from https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#appendix-I.1
+		struct Sha256_Traits : public Input_Traits {
+			using HashBuilder = Sha256_Builder;
+
+			static std::vector<std::string> SampleTestVectorsOutput20() {
+				return {
+					// ''
+					"F659819A6473C1835B25EA59E3D38914C98B374F0970B7E4C92181DF928FCA88",
+					// abc
+					"1C38F7C211EF233367B2420D04798FA4698080A8901021A795A1151775FE4DA7",
+					// abcdef0123456789
+					"8F7E7B66791F0DA0DBB5EC7C22EC637F79758C0A48170BFB7C4611BD304ECE89"
 				};
 			}
 
-			static std::vector<size_t> WantedOutputSizes() {
-				return { 0x20, 0x20, 0x20, 0x80, 0x80, 0x80, 0x80 };
-			}
-
-			static std::vector<std::string> SampleTestVectorsOutput() {
+			static std::vector<std::string> SampleTestVectorsOutput80() {
 				return {
-					// '' -> 0x20
-					"F659819A6473C1835B25EA59E3D38914C98B374F0970B7E4C92181DF928FCA88",
-					// abc -> 0x20
-					"1C38F7C211EF233367B2420D04798FA4698080A8901021A795A1151775FE4DA7",
-					// abcdef0123456789 -> 0x20
-					"8F7E7B66791F0DA0DBB5EC7C22EC637F79758C0A48170BFB7C4611BD304ECE89",
-
-					// '' -> 0x80
+					// ''
 					"8BCFFD1A3CAE24CF9CD7AB85628FD111BB17E3739D3B53F89580D217AA79526F"
 					"1708354A76A402D3569D6A9D19EF3DE4D0B991E4F54B9F20DCDE9B95A66824CB"
 					"DF6C1A963A1913D43FD7AC443A02FC5D9D8D77E2071B86AB114A9F34150954A7"
 					"531DA568A1EA8C760861C0CDE2005AFC2C114042EE7B5848F5303F0611CF297F",
 
-					// abc -> 0x80
+					// abc
 					"FE994EC51BDAA821598047B3121C149B364B178606D5E72BFBB713933ACC29C1"
 					"86F316BAECF7EA22212F2496EF3F785A27E84A40D8B299CEC56032763ECEEFF4"
 					"C61BD1FE65ED81DECAFFF4A31D0198619C0AA0C6C51FCA15520789925E813DCF"
 					"D318B542F8799441271F4DB9EE3B8092A7A2E8D5B75B73E28FB1AB6B4573C192",
 
-					// abcdef0123456789 -> 0x80
+					// abcdef0123456789
 					"C9EC7941811B1E19CE98E21DB28D22259354D4D0643E301175E2F474E030D326"
 					"94E9DD5520DDE93F3600D8EDAD94E5C364903088A7228CC9EFF685D7EAAC50D5"
 					"A5A8229D083B51DE4CCC3733917F4B9535A819B445814890B7029B5DE805BF62"
 					"B33A4DC7E24ACDF2C924E9FE50D55A6B832C8C84C7F82474B34E48C6D43867BE",
 
-					// a512_ + 512 'a' -> 0x80
+					// a512_ + 512 'a'
 					"396962DB47F749EC3B5042CE2452B619607F27FD3939ECE2746A7614FB83A1D0"
 					"97F554DF3927B084E55DE92C7871430D6B95C2A13896D8A33BC48587B1F66D21"
 					"B128A1A8240D5B0C26DFE795A1A842A0807BB148B77C2EF82ED4B6C9F7FCB732"
@@ -101,62 +107,41 @@ namespace catapult { namespace crypto {
 		};
 
 		// vectors from https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#appendix-I.2
-		struct Sha512_Traits {
+		struct Sha512_Traits : public Input_Traits {
 			using HashBuilder = Sha512_Builder;
 
-			static std::vector<std::string> SampleTestVectorsInput() {
+			static std::vector<std::string> SampleTestVectorsOutput20() {
 				return {
-					AsciiToHexString(""),
-					AsciiToHexString("abc"),
-					AsciiToHexString("abcdef0123456789"),
-					AsciiToHexString(""),
-					AsciiToHexString("abc"),
-					AsciiToHexString("abcdef0123456789"),
-					AsciiToHexString(
-						"a512_"
-						"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-						"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-						"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-						"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-						"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-						"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-						"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-						"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+					// ''
+					"2EAA1F7B5715F4736E6A5DBE288257ABF1FAA028680C1D938CD62AC699EAD642",
+					// abc
+					"0EEDA81F69376C80C0F8986496F22F21124CB3C562CF1DC608D2C13005553B0F",
+					// abcdef0123456789
+					"2E375FC05E05E80DBF3083796FDE2911789D9E8847E1FCEBF4CA4B36E239B338",
 				};
 			}
 
-			static std::vector<size_t> WantedOutputSizes() {
-				return { 0x20, 0x20, 0x20, 0x80, 0x80, 0x80, 0x80 };
-			}
-
-			static std::vector<std::string> SampleTestVectorsOutput() {
+			static std::vector<std::string> SampleTestVectorsOutput80() {
 				return {
-					// '' -> 0x20
-					"2EAA1F7B5715F4736E6A5DBE288257ABF1FAA028680C1D938CD62AC699EAD642",
-					// abc -> 0x20
-					"0EEDA81F69376C80C0F8986496F22F21124CB3C562CF1DC608D2C13005553B0F",
-					// abcdef0123456789 -> 0x20
-					"2E375FC05E05E80DBF3083796FDE2911789D9E8847E1FCEBF4CA4B36E239B338",
-
-					// '' -> 0x80
+					// ''
 					"0687CE02EBA5EB3FAF1C3C539D1F04BABD3C0F420EDAE244EEB2253B6C6D6865"
 					"145C31458E824B4E87CA61C3442DC7C8C9872B0B7250AA33E0668CCEBBD2B386"
 					"DE658CA11A1DCCEB51368721AE6DCD2D4BC86EAEBC4E0D11FA02AD053289C9B2"
 					"8A03DA6C942B2E12C14E88DBDE3B0BA619D6214F47212B628F3E1B537B66EFCF",
 
-					// abc -> 0x80
+					// abc
 					"779AE4FD8A92F365E4DF96B9FDE97B40486BB005C1A2096C86F55F3D92875D89"
 					"045FBDBC4A0E9F2D3E1E6BCD870B2D7131D868225B6FE72881A81CC5166B5285"
 					"393F71D2E68BB0AC603479959370D06BDBE5F0D8BFD9AF9494D1E4029BD68AB3"
 					"5A561341DD3F866B3EF0C95C1FDFAAB384CE24A23427803DDA1DB0C7D8D5344A",
 
-					// abcdef0123456789 -> 0x80
+					// abcdef0123456789
 					"F0953D28846A50E9F88B7AE35B643FC43733C9618751B569A73960C655C068DB"
 					"7B9F044AD5A40D49D91C62302EAA26163C12ABFA982E2B5D753049E000ADF763"
 					"0AE117AEB1FB9B61FC724431AC68B369E12A9481B4294384C3C890D576A79264"
 					"787BC8076E7CDABE50C044130E480501046920FF090C1A091C88391502F0FBAC",
 
-					// a512_ + 512 'a' -> 0x80
+					// a512_ + 512 'a'
 					"01524feea5b22f6509f6b1e805c97df94faf4d821b01aadeebc89e9daaed0733"
 					"b4544e50852fd3e019d58eaad6d267a134c8bc2c08bc46c10bfeff3ee03110bc"
 					"d8a0d695d75a34092bd8b677bdd369a13325549abab54f4ac907b712bdd3567f"
@@ -166,11 +151,38 @@ namespace catapult { namespace crypto {
 		};
 
 		template<typename TTraits>
-		void AssertSampleTestVectors() {
+		struct TTraits20Selector : public TTraits {
+			static constexpr size_t Requested_Size = 0x20;
+
+			static std::vector<std::string> SampleTestVectorsInput() {
+				return TTraits::SampleTestVectorsInput20();
+			}
+
+			static std::vector<std::string> SampleTestVectorsOutput() {
+				return TTraits::SampleTestVectorsOutput20();
+			}
+		};
+
+		template<typename TTraits>
+		struct TTraits80Selector : public TTraits {
+			static constexpr size_t Requested_Size = 0x80;
+
+			static std::vector<std::string> SampleTestVectorsInput() {
+				return TTraits::SampleTestVectorsInput80();
+			}
+
+			static std::vector<std::string> SampleTestVectorsOutput() {
+				return TTraits::SampleTestVectorsOutput80();
+			}
+		};
+
+		// endregion
+
+		template<typename TSelectorTraits>
+		void AssertSampleTestVectorsViaSelector() {
 			// Arrange:
-			auto dataSet = TTraits::SampleTestVectorsInput();
-			auto dataSetSizes = TTraits::WantedOutputSizes();
-			auto expectedHashes = TTraits::SampleTestVectorsOutput();
+			auto dataSet = TSelectorTraits::SampleTestVectorsInput();
+			auto expectedHashes = TSelectorTraits::SampleTestVectorsOutput();
 
 			// Sanity:
 			ASSERT_EQ(dataSet.size(), expectedHashes.size());
@@ -178,20 +190,30 @@ namespace catapult { namespace crypto {
 			auto i = 0u;
 			for (const auto& dataHexStr : dataSet) {
 				auto buffer = test::HexStringToVector(dataHexStr);
-				std::vector<uint8_t> output(dataSetSizes[i], 0);
+				std::vector<uint8_t> output(TSelectorTraits::Requested_Size, 0);
 
 				// Act:
-				using HE = HashExpanderXmd<typename TTraits::HashBuilder>;
+				using HE = HashExpanderXmd<typename TSelectorTraits::HashBuilder>;
 				std::string dst = "QUUX-V01-CS02-with-expander";
 				std::vector<uint8_t> dstAsUint(reinterpret_cast<const uint8_t*>(dst.data()), reinterpret_cast<const uint8_t*>(dst.data() + dst.size()));
 				HE::Expand(buffer, dstAsUint, output);
 
 				// Assert:
-				std::vector<uint8_t> expectedOutput(dataSetSizes[i]);
+				std::vector<uint8_t> expectedOutput(TSelectorTraits::Requested_Size);
 				utils::ParseHexStringIntoContainer(expectedHashes[i].c_str(), expectedHashes[i].size(), expectedOutput);
 				EXPECT_EQ(expectedOutput, output) << " at vector " << i;
 				++i;
 			}
+		}
+
+		template<typename TTraits>
+		void AssertSampleTestVectors20() {
+			AssertSampleTestVectorsViaSelector<TTraits20Selector<TTraits>>();
+		}
+
+		template<typename TTraits>
+		void AssertSampleTestVectors80() {
+			AssertSampleTestVectorsViaSelector<TTraits80Selector<TTraits>>();
 		}
 
 		template<typename TTraits>
@@ -201,8 +223,10 @@ namespace catapult { namespace crypto {
 			RawBuffer buffer(nullptr, 0);
 
 			// Act + Assert:
-			std::vector<uint8_t> output(TTraits::HashBuilder::OutputType::Size * 255);
+			std::vector<uint8_t> zero(TTraits::HashBuilder::OutputType::Size * 255, 0);
+			std::vector<uint8_t> output(TTraits::HashBuilder::OutputType::Size * 255, 0);
 			EXPECT_NO_THROW(HE::Expand(buffer, buffer, output));
+			EXPECT_NE(zero, output);
 		}
 
 		template<typename TTraits>
@@ -217,14 +241,16 @@ namespace catapult { namespace crypto {
 		}
 	}
 
-#define MAKE_EXPANDHASH_TEST(TRAITS_PREFIX, TEST_NAME) \
+#define MAKE_EXPAND_HASH_TEST(TRAITS_PREFIX, TEST_NAME) \
 	TEST(TEST_CLASS, TRAITS_PREFIX##_##TEST_NAME) { Assert##TEST_NAME<TRAITS_PREFIX##_Traits>(); }
 
-	MAKE_EXPANDHASH_TEST(Sha256, SampleTestVectors)
-	MAKE_EXPANDHASH_TEST(Sha256, ProducesOutputWhenRequestedDataSizeIsAtBoundary)
-	MAKE_EXPANDHASH_TEST(Sha256, ThrowsWhenRequestedDataIsTooLarge)
+	MAKE_EXPAND_HASH_TEST(Sha256, SampleTestVectors20)
+	MAKE_EXPAND_HASH_TEST(Sha256, SampleTestVectors80)
+	MAKE_EXPAND_HASH_TEST(Sha256, ProducesOutputWhenRequestedDataSizeIsAtBoundary)
+	MAKE_EXPAND_HASH_TEST(Sha256, ThrowsWhenRequestedDataIsTooLarge)
 
-	MAKE_EXPANDHASH_TEST(Sha512, SampleTestVectors)
-	MAKE_EXPANDHASH_TEST(Sha512, ProducesOutputWhenRequestedDataSizeIsAtBoundary)
-	MAKE_EXPANDHASH_TEST(Sha512, ThrowsWhenRequestedDataIsTooLarge)
+	MAKE_EXPAND_HASH_TEST(Sha512, SampleTestVectors20)
+	MAKE_EXPAND_HASH_TEST(Sha512, SampleTestVectors80)
+	MAKE_EXPAND_HASH_TEST(Sha512, ProducesOutputWhenRequestedDataSizeIsAtBoundary)
+	MAKE_EXPAND_HASH_TEST(Sha512, ThrowsWhenRequestedDataIsTooLarge)
 }}

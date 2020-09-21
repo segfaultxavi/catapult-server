@@ -24,32 +24,29 @@
 
 namespace catapult { namespace crypto {
 
+	/// HMAC-like hash expander, as described in hash to curve draft.
 	template<typename THashBuilder>
 	class HashExpanderXmd {
-		public:
+		private:
 			static constexpr size_t Hash_Output_Size = THashBuilder::OutputType::Size;
-			static constexpr size_t Hash_Block_Size = THashBuilder::Hash_Block_Size;
 
-			static constexpr size_t ExpandedSize(size_t requestedLength) {
+			static constexpr size_t NumOutputBlocks(size_t requestedLength) {
 				return (requestedLength + Hash_Output_Size - 1) / Hash_Output_Size;
 			}
 
-		public:
-			// https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-5.4.1
-			static void Expand(const RawBuffer& msg, const RawBuffer& dst, const MutableRawBuffer& expanded) {
+			static void PrepareB0(
+					std::initializer_list<const RawBuffer> buffersList,
+					const RawBuffer& dst,
+					size_t expandedSize,
+					typename THashBuilder::OutputType& b0) {
 				THashBuilder builder;
-
-				size_t ell = (expanded.Size + Hash_Output_Size - 1) / Hash_Output_Size;
-				if (ell > 255)
-					CATAPULT_THROW_INVALID_ARGUMENT_1("invalid buffer size", expanded.Size);
-
-				std::array<uint8_t, Hash_Block_Size> Zpad{};
+				std::array<uint8_t, THashBuilder::Hash_Block_Size> Zpad{};
 				builder.update(Zpad);
 
-				builder.update(msg);
+				builder.update(buffersList);
 
 				// l_i_b_str (big endian) + index
-				uint16_t sizeU16 = static_cast<uint16_t>(expanded.Size);
+				uint16_t sizeU16 = static_cast<uint16_t>(expandedSize);
 				std::array<uint8_t, 3> libWithId {
 					static_cast<uint8_t>(sizeU16 >> 8),
 					static_cast<uint8_t>(sizeU16 & 0xFF),
@@ -57,16 +54,26 @@ namespace catapult { namespace crypto {
 				};
 				builder.update(libWithId);
 
-				// DST_prime
 				std::array<uint8_t, 1> dstLen{ static_cast<uint8_t>(dst.Size) };
 				builder.update(dst);
 				builder.update(dstLen);
 
-				typename THashBuilder::OutputType b0;
 				builder.final(b0);
+			}
 
-				// zero initialize to mimic b_1 calculation
-				typename THashBuilder::OutputType prevHash{};
+		public:
+			/// Produces pseudo-random byte string \a expanded using \a buffersList and a tag \a dst.
+			// https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-5.4.1
+			static void Expand(std::initializer_list<const RawBuffer> buffersList, const RawBuffer& dst, const MutableRawBuffer& expanded) {
+				size_t ell = NumOutputBlocks(expanded.Size);
+				if (ell > 255)
+					CATAPULT_THROW_INVALID_ARGUMENT_1("invalid buffer size", expanded.Size);
+
+				typename THashBuilder::OutputType b0;
+				PrepareB0(buffersList, dst, expanded.Size, b0);
+
+				// zero initialized to avoid special case for b_1 calculation
+				typename THashBuilder::OutputType prevHash;
 				auto* pExpanded = expanded.pData;
 				for (auto i = 0u; i < ell; ++i) {
 					THashBuilder subBuilder;
@@ -77,6 +84,8 @@ namespace catapult { namespace crypto {
 					std::array<uint8_t, 1> blockId{ static_cast<uint8_t>(i + 1) };
 					subBuilder.update(blockId);
 
+					// Dst_Prime
+					std::array<uint8_t, 1> dstLen{ static_cast<uint8_t>(dst.Size) };
 					subBuilder.update(dst);
 					subBuilder.update(dstLen);
 
@@ -86,6 +95,10 @@ namespace catapult { namespace crypto {
 					std::memcpy(pExpanded, prevHash.data(), dataToWrite);
 					pExpanded += dataToWrite;
 				}
+			}
+
+			static void Expand(const RawBuffer& msg, const RawBuffer& dst, const MutableRawBuffer& expanded) {
+				Expand({ msg }, dst, expanded);
 			}
 	};
 }}
