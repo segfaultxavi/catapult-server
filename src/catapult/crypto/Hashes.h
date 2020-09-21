@@ -62,6 +62,8 @@ namespace catapult { namespace crypto {
 	class HashBuilderT {
 	public:
 		using OutputType = utils::ByteArray<THashTag>;
+
+		/// Hash internal block size.
 		static constexpr size_t Hash_Block_Size = Block_Size;
 
 	public:
