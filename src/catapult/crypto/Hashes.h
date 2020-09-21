@@ -95,8 +95,8 @@ namespace catapult { namespace crypto {
 	extern template class HashBuilderT<Sha3ModeTag, Hash256_tag, 136>;
 
 	/// GenerationHash_Builder.
-	using GenerationHash_Builder = HashBuilderT<Sha3ModeTag, GenerationHash_tag, 72>;
-	extern template class HashBuilderT<Sha3ModeTag, GenerationHash_tag, 72>;
+	using GenerationHash_Builder = HashBuilderT<Sha3ModeTag, GenerationHash_tag, 136>;
+	extern template class HashBuilderT<Sha3ModeTag, GenerationHash_tag, 136>;
 
 	// endregion
 }}

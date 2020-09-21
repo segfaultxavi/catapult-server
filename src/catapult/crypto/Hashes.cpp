@@ -131,7 +131,7 @@ namespace catapult { namespace crypto {
 	template class HashBuilderT<Sha2ModeTag, Hash256_tag, 64>;
 	template class HashBuilderT<Sha2ModeTag, Hash512_tag, 128>;
 	template class HashBuilderT<Sha3ModeTag, Hash256_tag, 136>;
-	template class HashBuilderT<Sha3ModeTag, GenerationHash_tag, 72>;
+	template class HashBuilderT<Sha3ModeTag, GenerationHash_tag, 136>;
 
 	// endregion
 }}
