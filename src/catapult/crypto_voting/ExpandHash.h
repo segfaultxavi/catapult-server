@@ -37,7 +37,7 @@ namespace catapult { namespace crypto {
 			static void PrepareB0(
 					std::initializer_list<const RawBuffer> buffersList,
 					const RawBuffer& dst,
-					size_t expandedSize,
+					uint16_t expandedSize,
 					typename THashBuilder::OutputType& b0) {
 				THashBuilder builder;
 				std::array<uint8_t, THashBuilder::Hash_Block_Size> Zpad{};
@@ -46,10 +46,9 @@ namespace catapult { namespace crypto {
 				builder.update(buffersList);
 
 				// l_i_b_str (big endian) + index
-				uint16_t sizeU16 = static_cast<uint16_t>(expandedSize);
 				std::array<uint8_t, 3> libWithId {
-					static_cast<uint8_t>(sizeU16 >> 8),
-					static_cast<uint8_t>(sizeU16 & 0xFF),
+					static_cast<uint8_t>(expandedSize >> 8),
+					static_cast<uint8_t>(expandedSize & 0xFF),
 					0
 				};
 				builder.update(libWithId);
@@ -63,14 +62,14 @@ namespace catapult { namespace crypto {
 
 		public:
 			/// Produces pseudo-random byte string \a expanded using \a buffersList and a tag \a dst.
-			// https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-5.4.1
+			/// \note https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-5.4.1
 			static void Expand(std::initializer_list<const RawBuffer> buffersList, const RawBuffer& dst, const MutableRawBuffer& expanded) {
 				size_t ell = NumOutputBlocks(expanded.Size);
 				if (ell > 255)
 					CATAPULT_THROW_INVALID_ARGUMENT_1("invalid buffer size", expanded.Size);
 
 				typename THashBuilder::OutputType b0;
-				PrepareB0(buffersList, dst, expanded.Size, b0);
+				PrepareB0(buffersList, dst, static_cast<uint16_t>(expanded.Size), b0);
 
 				// zero initialized to avoid special case for b_1 calculation
 				typename THashBuilder::OutputType prevHash;
@@ -97,6 +96,8 @@ namespace catapult { namespace crypto {
 				}
 			}
 
+			/// Produces pseudo-random byte string \a expanded using \a msg and a tag \a dst.
+			/// \note https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-5.4.1
 			static void Expand(const RawBuffer& msg, const RawBuffer& dst, const MutableRawBuffer& expanded) {
 				Expand({ msg }, dst, expanded);
 			}
