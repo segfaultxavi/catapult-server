@@ -206,6 +206,7 @@ namespace catapult { namespace crypto {
 	EXPAND_HASH_TRAITS_BASED_TEST(SampleTestVectors20) {
 		AssertSampleTestVectorsViaSelector<TTraits20Selector<TTraits>>();
 	}
+
 	EXPAND_HASH_TRAITS_BASED_TEST(SampleTestVectors80) {
 		AssertSampleTestVectorsViaSelector<TTraits80Selector<TTraits>>();
 	}
