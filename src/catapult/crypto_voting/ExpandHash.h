@@ -80,7 +80,7 @@ namespace catapult { namespace crypto {
 				for (auto i = 0u; i < ell; ++i) {
 					THashBuilder subBuilder;
 					for (auto j = 0u; j < Hash_Output_Size; ++j)
-						prevHash[j] ^= b0[j];
+						prevHash[j] = static_cast<uint8_t>(prevHash[j] ^ b0[j]);
 
 					subBuilder.update(prevHash);
 					std::array<uint8_t, 1> blockId{ static_cast<uint8_t>(i + 1) };
