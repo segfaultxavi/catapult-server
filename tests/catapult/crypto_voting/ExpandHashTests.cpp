@@ -150,7 +150,7 @@ namespace catapult { namespace crypto {
 		};
 
 		template<typename TTraits>
-		struct TTraits20Selector : public TTraits {
+		struct TraitsSelector20 : public TTraits {
 			static constexpr size_t Requested_Size = 0x20;
 
 			static std::vector<std::string> SampleTestVectorsOutput() {
@@ -159,7 +159,7 @@ namespace catapult { namespace crypto {
 		};
 
 		template<typename TTraits>
-		struct TTraits80Selector : public TTraits {
+		struct TraitsSelector80 : public TTraits {
 			static constexpr size_t Requested_Size = 0x80;
 
 			static std::vector<std::string> SampleTestVectorsOutput() {
@@ -204,11 +204,49 @@ namespace catapult { namespace crypto {
 	template<typename TTraits> void TRAITS_TEST_NAME(TEST_CLASS, TEST_NAME)()
 
 	EXPAND_HASH_TRAITS_BASED_TEST(SampleTestVectors20) {
-		AssertSampleTestVectorsViaSelector<TTraits20Selector<TTraits>>();
+		AssertSampleTestVectorsViaSelector<TraitsSelector20<TTraits>>();
 	}
 
 	EXPAND_HASH_TRAITS_BASED_TEST(SampleTestVectors80) {
-		AssertSampleTestVectorsViaSelector<TTraits80Selector<TTraits>>();
+		AssertSampleTestVectorsViaSelector<TraitsSelector80<TTraits>>();
+	}
+
+	namespace {
+		auto Split(const std::vector<uint8_t>& buffer, int numParts) {
+			std::vector<std::vector<uint8_t>> parts;
+			auto partSize = static_cast<int>(buffer.size()) / numParts;
+			for (auto i = 0; i < numParts - 1; ++i)
+				parts.push_back(std::vector<uint8_t>(buffer.cbegin() + i * partSize, buffer.cbegin() + (i + 1) * partSize));
+
+			parts.push_back(std::vector<uint8_t>(buffer.cbegin() + (numParts - 1) * partSize, buffer.cend()));
+			return parts;
+		}
+	}
+
+	EXPAND_HASH_TRAITS_BASED_TEST(BufferListVariantMatchesSingleBufferVariant) {
+		// Arrange:
+		using SelectorTraits = TraitsSelector80<TTraits>;
+		using HE = HashExpanderXmd<typename TTraits::HashBuilder>;
+		auto dataSet = InputTraits::SampleTestVectorsInput();
+		auto expectedHashes = SelectorTraits::SampleTestVectorsOutput();
+
+		// Act + Assert:
+		auto i = 0u;
+		for (const auto& dataHexStr : dataSet) {
+			auto buffer = test::HexStringToVector(dataHexStr);
+			auto buffers = Split(buffer, 3);
+			std::vector<uint8_t> output(SelectorTraits::Requested_Size, 0);
+
+			// Act:
+			std::string dst = "QUUX-V01-CS02-with-expander";
+			HE::Expand({ buffers[0], buffers[1], buffers[2] }, { reinterpret_cast<const uint8_t*>(dst.data()), dst.size() }, output);
+
+			// Assert:
+			std::vector<uint8_t> expectedOutput(SelectorTraits::Requested_Size);
+			utils::ParseHexStringIntoContainer(expectedHashes[i].c_str(), expectedHashes[i].size(), expectedOutput);
+			EXPECT_EQ(expectedOutput, output) << " at vector " << i;
+			++i;
+		}
 	}
 
 	EXPAND_HASH_TRAITS_BASED_TEST(ThrowsWhenRequestedDataIsTooLarge) {

@@ -40,13 +40,13 @@ namespace catapult { namespace crypto {
 					uint16_t expandedSize,
 					typename THashBuilder::OutputType& b0) {
 				THashBuilder builder;
-				std::array<uint8_t, THashBuilder::Hash_Block_Size> Zpad{};
+				std::array<uint8_t, THashBuilder::Hash_Block_Size> Zpad{ 0 };
 				builder.update(Zpad);
 
 				builder.update(buffersList);
 
 				// l_i_b_str (big endian) + index
-				std::array<uint8_t, 3> libWithId {
+				std::array<uint8_t, 3> libWithId{
 					static_cast<uint8_t>(expandedSize >> 8),
 					static_cast<uint8_t>(expandedSize & 0xFF),
 					0
@@ -63,7 +63,10 @@ namespace catapult { namespace crypto {
 		public:
 			/// Produces pseudo-random byte string \a expanded using \a buffersList and a tag \a dst.
 			/// \note https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-5.4.1
-			static void Expand(std::initializer_list<const RawBuffer> buffersList, const RawBuffer& dst, const MutableRawBuffer& expanded) {
+			static void Expand(
+					std::initializer_list<const RawBuffer> buffersList,
+					const RawBuffer& dst,
+					const MutableRawBuffer& expanded) {
 				size_t ell = NumOutputBlocks(expanded.Size);
 				if (ell > 255)
 					CATAPULT_THROW_INVALID_ARGUMENT_1("invalid buffer size", expanded.Size);
