@@ -136,7 +136,7 @@ In order to be an eligible harvester, the account must:
 
     In order to ensure that the network produces a second block after its launch, the nemesis block must include at least one valid VrfKeyLinkTransaction linking a harvester account with a second key pair.
 
-    Run the linker tool to create a VrfKeyLinkTransaction.
+    Run the linker tool to create a VrfKeyLinkTransaction:
 
     ```sh
     cd bin
@@ -146,6 +146,33 @@ In order to be an eligible harvester, the account must:
    * Replace ``<HARVESTER_PRIVATE_KEY>`` with the private key of an account that has received sufficient harvesting mosaics in ``resources/mijin-test.properties`` ``[distribution>cat:harvest]``.
 
    * Replace ``<VRF_PUBLIC_KEY>`` with the public key of an unused account from ``nemesis.addresses.txt``.
+
+## Append the Voting Keys to the nemesis block
+
+Before transactions are permanently added to the blockchain the blocks need to be [finalized](https://docs.symbolplatform.com/concepts/block.html#finalization), a processing involving several nodes in the network voting whether they consider the block to be correct.
+
+Each node of the network can host zero or more voting accounts. In order to be an eligible voter an account must:
+
+1. Own at least ``minVoterBalance`` mosaics defined in ``config-network.properties``.
+
+2. Announce a valid [VotingKeyLinkTransaction](https://docs.symbolplatform.com/serialization/coresystem.html#votingkeylinktransaction).
+
+    First run the voting key tool to generate the key. It will be printed on the standard output:
+
+    ```sh
+    cd bin
+    ./catapult.tools.votingkey --output ../private_key_tree1.dat
+    ```
+
+    Then run the linker tool to create a VotingKeyLinkTransaction:
+
+    ```sh
+    ./catapult.tools.linker --resources ../ --type voting --secret <VOTER_PRIVATE_KEY> --linkedPublicKey <VOTING_PUBLIC_KEY> --output ../txes/tx0.bin
+    ```
+
+   * Replace ``<VOTER_PRIVATE_KEY>`` with the private key of an account that has received sufficient voting mosaics.
+
+   * Replace ``<VOTING_PUBLIC_KEY>`` with the public key obtained from ``catapult.tools.votingkey``.
 
 ## Generate the network mosaic ids
 
