@@ -130,7 +130,7 @@ Each node of the network can host zero or more harvester accounts to create new 
 
 In order to be an eligible harvester, the account must:
 
-1. Own a certain amount of harvesting mosaics defined in ``config-network.properties`` between ``minHarvesterBalance`` and ``maxHarvesterBalance``.
+1. Own a certain amount of harvesting mosaics defined in ``config-network.properties`` between ``minHarvesterBalance`` and ``maxHarvesterBalance``. See [Configuring network properties](https://docs.symbolplatform.com/guides/network/configuring-network-properties).
 
 2. Announce a valid [VrfKeyLinkTransaction](https://docs.symbolplatform.com/serialization/coresystem.html#vrfkeylinktransaction). The VRF transaction links the harvester account with a second key pair to randomize block production and leader selection.
 
@@ -151,9 +151,9 @@ In order to be an eligible harvester, the account must:
 
 Before transactions are permanently added to the blockchain the blocks need to be [finalized](https://docs.symbolplatform.com/concepts/block.html#finalization), a processing involving several nodes in the network voting whether they consider the block to be correct.
 
-Each node of the network can host zero or more voting accounts. In order to be an eligible voter an account must:
+Each node of the network can optionally host a voting account. In order to be an eligible voter an account must:
 
-1. Own at least ``minVoterBalance`` mosaics defined in ``config-network.properties``.
+1. Own at least ``minVoterBalance`` harvesting mosaics (``harvestingMosaicId``) defined in ``config-network.properties``. See [Configuring network properties](https://docs.symbolplatform.com/guides/network/configuring-network-properties).
 
 2. Announce a valid [VotingKeyLinkTransaction](https://docs.symbolplatform.com/serialization/coresystem.html#votingkeylinktransaction).
 
@@ -170,7 +170,7 @@ Each node of the network can host zero or more voting accounts. In order to be a
     ./catapult.tools.linker --resources ../ --type voting --secret <VOTER_PRIVATE_KEY> --linkedPublicKey <VOTING_PUBLIC_KEY> --output ../txes/tx0.bin
     ```
 
-   * Replace ``<VOTER_PRIVATE_KEY>`` with the private key of an account that has received sufficient voting mosaics.
+   * Replace ``<VOTER_PRIVATE_KEY>`` with the private key of an account that owns sufficient harvesting mosaics.
 
    * Replace ``<VOTING_PUBLIC_KEY>`` with the public key obtained from ``catapult.tools.votingkey``.
 
