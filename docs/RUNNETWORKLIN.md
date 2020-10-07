@@ -140,7 +140,7 @@ In order to be an eligible harvester, the account must:
 
     ```sh
     cd bin
-    ./catapult.tools.linker --resources ../ --type vrf --secret <HARVESTER_PRIVATE_KEY> --linkedPublicKey <VRF_PUBLIC_KEY> --output ../txes/tx0.bin
+    ./catapult.tools.linker --resources ../ --type vrf --secret <HARVESTER_PRIVATE_KEY> --linkedPublicKey <VRF_PUBLIC_KEY> --output ../txes/vrf_tx0.bin
     ```
 
    * Replace ``<HARVESTER_PRIVATE_KEY>`` with the private key of an account that has received sufficient harvesting mosaics in ``resources/mijin-test.properties`` ``[distribution>cat:harvest]``.
@@ -167,7 +167,7 @@ Each node of the network can optionally host a voting account. In order to be an
     Then run the linker tool to create a VotingKeyLinkTransaction:
 
     ```sh
-    ./catapult.tools.linker --resources ../ --type voting --secret <VOTER_PRIVATE_KEY> --linkedPublicKey <VOTING_PUBLIC_KEY> --output ../txes/tx0.bin
+    ./catapult.tools.linker --resources ../ --type voting --secret <VOTER_PRIVATE_KEY> --linkedPublicKey <VOTING_PUBLIC_KEY> --output ../txes/voting_tx0.bin
     ```
 
    * Replace ``<VOTER_PRIVATE_KEY>`` with the private key of an account that owns sufficient harvesting mosaics.
