@@ -130,7 +130,9 @@ Each node of the network can host zero or more harvester accounts to create new 
 
 In order to be an eligible harvester, the account must:
 
-1. Own a certain amount of harvesting mosaics defined in ``config-network.properties`` between ``minHarvesterBalance`` and ``maxHarvesterBalance``. See [Configuring network properties](https://docs.symbolplatform.com/guides/network/configuring-network-properties).
+1. Own an amount of harvesting mosaics (``harvestingMosaicId``) between ``minHarvesterBalance`` and ``maxHarvesterBalance`` as defined in ``config-network.properties``.
+
+   See [Configuring network properties](https://docs.symbolplatform.com/guides/network/configuring-network-properties).
 
 2. Announce a valid [VrfKeyLinkTransaction](https://docs.symbolplatform.com/serialization/coresystem.html#vrfkeylinktransaction). The VRF transaction links the harvester account with a second key pair to randomize block production and leader selection.
 
@@ -143,17 +145,17 @@ In order to be an eligible harvester, the account must:
     ./catapult.tools.linker --resources ../ --type vrf --secret <HARVESTER_PRIVATE_KEY> --linkedPublicKey <VRF_PUBLIC_KEY> --output ../txes/vrf_tx0.bin
     ```
 
-   * Replace ``<HARVESTER_PRIVATE_KEY>`` with the private key of an account that has received sufficient harvesting mosaics in ``resources/mijin-test.properties`` ``[distribution>cat:harvest]``.
+   * Replace ``<HARVESTER_PRIVATE_KEY>`` with the private key of an account that owns sufficient harvesting mosaics in ``resources/mijin-test.properties`` ``[distribution>cat:harvest]``.
 
    * Replace ``<VRF_PUBLIC_KEY>`` with the public key of an unused account from ``nemesis.addresses.txt``.
 
 ## Append the Voting Keys to the nemesis block
 
-Before transactions are permanently added to the blockchain the blocks need to be [finalized](https://docs.symbolplatform.com/concepts/block.html#finalization), a processing involving several nodes in the network voting whether they consider the block to be correct.
+Each node of the network can optionally host a voting account (to partake in the [finalization process](https://docs.symbolplatform.com/concepts/block.html#finalization)). In order to be an eligible voter an account must:
 
-Each node of the network can optionally host a voting account. In order to be an eligible voter an account must:
+1. Own at least ``minVoterBalance`` harvesting mosaics (``harvestingMosaicId``) as defined in ``config-network.properties``.
 
-1. Own at least ``minVoterBalance`` harvesting mosaics (``harvestingMosaicId``) defined in ``config-network.properties``. See [Configuring network properties](https://docs.symbolplatform.com/guides/network/configuring-network-properties).
+   See [Configuring network properties](https://docs.symbolplatform.com/guides/network/configuring-network-properties).
 
 2. Announce a valid [VotingKeyLinkTransaction](https://docs.symbolplatform.com/serialization/coresystem.html#votingkeylinktransaction).
 
