@@ -6,7 +6,7 @@ This document is intended for developers interested in catapult-server developme
 
 The scripts shared on this page have been tested on servers with the following minimum requirements.
 
-* CPU: 2 cores or more
+* CPU: 2 cores or more, with **little endian** architecture.
 * Memory: 4GB or more
 * HD: 20GB or more
 
