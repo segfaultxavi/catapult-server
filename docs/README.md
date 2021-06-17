@@ -1,16 +1,16 @@
 # Developer Notes
 
-This document is intended for developers interested in catapult-server development.
+This document is intended for readers interested in catapult-server development.
 
 ## Hardware requirements
 
-The scripts shared on this page have been tested on servers with the following minimum requirements.
+The scripts shared in these documents have been tested on servers with the following hardware:
 
-* CPU: 2 cores or more
-* Memory: 4 GB or more
-* HD: 20 GB or more
+* CPU: 4 cores
+* Memory: 8 GB
+* HD: 20 GB
 
-Server requirements are network dependent.
+Runtime server requirements are network dependent.
 For example, networks with higher throughput will likely have higher requirements.
 
 Although you might be able to run the software in less powerful instances, you might encounter some issues while installing or running the node.
@@ -56,8 +56,10 @@ Windows:
 
 ### Guides
 
-* [Build with CONAN](BUILD-conan.md)
-* [Build without CONAN](BUILD-manual.md)
+In increasing order of complexity:
+
+* [Build with Conan](BUILD-conan.md)
+* [Build manually](BUILD-manual.md)
 
 ### Sanitizers
 
