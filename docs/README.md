@@ -7,8 +7,8 @@ This document is intended for developers interested in catapult-server developme
 The scripts shared on this page have been tested on servers with the following minimum requirements.
 
 * CPU: 2 cores or more
-* Memory: 4GB or more
-* HD: 20GB or more
+* Memory: 4 GB or more
+* HD: 20 GB or more
 
 Server requirements are network dependent.
 For example, networks with higher throughput will likely have higher requirements.
@@ -26,35 +26,38 @@ Make sure that the server's host is accessible from the internet and that the po
 
 Required
 
- * cmake >= 3.14
- * git
- * python 3.x
+* cmake >= 3.14
+* git
+* python 3.x
 
 Recommended
 
- - ninja-build
+* ninja-build
 
 ### Compilers
 
 Catapult's supported compilers are:
 
 Linux:
- - Clang: 11.0.1
- - Clang: 10.0.0
- - GCC: 10.2.0
- - GCC: 9.2.1
+
+* Clang: 11.0.1
+* Clang: 10.0.0
+* GCC: 10.2.0
+* GCC: 9.2.1
 
 OS X:
- - Apple Clang: 11.0.3
+
+* Apple Clang: 11.0.3
 
 Windows:
- - Visual Studio 2017 (15.8)
- - Visual Studio 2019 (16.8)
+
+* Visual Studio 2017 (15.8)
+* Visual Studio 2019 (16.8)
 
 ### Guides
 
- * [Build with CONAN](BUILD-conan.md)
- * [Build without CONAN](BUILD-manual.md)
+* [Build with CONAN](BUILD-conan.md)
+* [Build without CONAN](BUILD-manual.md)
 
 ### Sanitizers
 
@@ -64,11 +67,11 @@ When building sanitizers, `sanitizer_blacklist.txt` file is used.
 
 When running thread sanitizer, there are following suppressions required:
 
- * for false positive in libc++ `shared_ptr`:
- * for false positive in boost's 1.74 executor (ref-counted)
- * for false positive in boost logger, in server logger is always initialized from a single thread
+* for false positive in libc++ `shared_ptr`:
+* for false positive in boost's 1.74 executor (ref-counted)
+* for false positive in boost logger, in server logger is always initialized from a single thread
 
-```
+```suppresions
 race:~weak_ptr
 race:~executor
 race:global_logger::get()
@@ -76,10 +79,12 @@ race:global_logger::get()
 
 ## Running a private network
 
-* [Linux instructions](RUNNETWORKLIN.md)
+* [How to create a new network](RUNNETWORKLIN.md)
+
 * [Network configuration](https://nemtech.github.io/guides/network/configuring-network-properties.html)
 
 ## Running a peer node
 
-* [Linux instructions](RUNPEERLIN.md)
+* [How to create a node and connect to an existing network](RUNPEERLIN.md)
+
 * [Node configuration](https://nemtech.github.io/guides/network/configuring-node-properties.html)

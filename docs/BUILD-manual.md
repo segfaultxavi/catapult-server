@@ -22,6 +22,7 @@ This program installs the aforementioned system-wide prerequisites on apt-based 
 ## Step 1: Clone catapult-server, prepare the system and environment
 
 Copy & paste the whole snippet below into a terminal:
+
 ```sh
 git clone https://github.com/nemtech/catapult-server.git
 cd catapult-server
