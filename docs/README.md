@@ -58,6 +58,7 @@ Windows:
 
 In increasing order of complexity:
 
+* [Build with Docker](BUILD-docker.md)
 * [Build with Conan](BUILD-conan.md)
 * [Build manually](BUILD-manual.md)
 
