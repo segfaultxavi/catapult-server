@@ -180,4 +180,4 @@ Note also that the architecture is defined in ``configurations/gcc-10.yaml`` as 
        --layer test
    ```
 
-The final image name is `symbolplatform/symbol-server-build-base:ubuntu-gcc-10-skylake`
+The final image name is `symbolplatform/symbol-server-build-base:ubuntu-gcc-10-skylake` (based on the used configuration).
