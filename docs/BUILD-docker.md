@@ -34,11 +34,13 @@ python3 catapult-src/scripts/build/runDockerBuild.py \
     --compiler-configuration catapult-src/scripts/build/configurations/gcc-10.yaml
     --build-configuration catapult-src/scripts/build/configurations/release-private.yaml
     --operating-system ubuntu
-    --user 1000:1000
+    --user "$(id -u):$(id -g)"
     --destination-image-label gcc-10-main-9273d6c5
 ```
 
 Note the used ``--compiler-configuration`` and ``--operating-system`` parameters that build tools for **Ubuntu + gcc10**.
+
+Note also how the ``--user`` parameters match the local user and group.
 
 Upon successful completion the ``output/binaries/bin`` folder contains the produced binaries. However, the dependencies in ``output/binaries/deps`` must be accessible so make sure to add this folder to the ``LD_LIBRARY_PATH`` environment variable (Linux) or ``DYLD_LIBRARY_PATH`` (Mac).
 
